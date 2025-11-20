@@ -39,7 +39,6 @@
                                     <select class="form-select" id="gender" name="gender">
                                         <option value="Male" <?php echo ($_POST['gender'] ?? '') === 'Male' ? 'selected' : ''; ?>>Male</option>
                                         <option value="Female" <?php echo ($_POST['gender'] ?? '') === 'Female' ? 'selected' : ''; ?>>Female</option>
-                                        <option value="Other" <?php echo ($_POST['gender'] ?? '') === 'Other' ? 'selected' : ''; ?>>Other</option>
                                     </select>
                                 </div>
                                 <div class="col-md-4 mb-3">
