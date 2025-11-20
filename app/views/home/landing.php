@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MediCare Portal - Healthcare Management System</title>
+    <title>Actpretor Portal - Healthcare Management System</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
     <style>
@@ -101,7 +101,7 @@
                     <div class="logo-icon">
                         <i class="bi bi-heart-pulse"></i>
                     </div>
-                    <h1>MediCare Portal</h1>
+                    <h1>Actpretor Portal</h1>
                     <p>A comprehensive healthcare management system for medical staff. <br>Manage patients, track medications, and streamline your workflow.</p>
                     
                     <div class="login-buttons">

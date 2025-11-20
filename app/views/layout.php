@@ -16,7 +16,7 @@ if (basename($baseUrl) === 'public') {
 <head>
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
-  <title>MediCare Portal</title>
+  <title>Actpretor Portal</title>
   <meta content="Medical staff portal for patient and medication management" name="description">
   <meta content="healthcare, medical, patients, medications" name="keywords">
   <link href="<?php echo $baseUrl; ?>assets/img/favicon.png" rel="icon">
@@ -41,11 +41,11 @@ if (basename($baseUrl) === 'public') {
       font-family: 'Inter', 'Open Sans', sans-serif;
       background-color: #f8f9fa;
     }
-    .navbar-medicare {
+    .navbar-Actpretor {
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     }
-    .navbar-medicare .navbar-brand {
+    .navbar-Actpretor .navbar-brand {
       font-weight: 700;
       font-size: 1.5rem;
     }
@@ -123,10 +123,10 @@ if (basename($baseUrl) === 'public') {
 </head>
 <body>
   <?php if (empty($hideChrome)): ?>
-    <nav class="navbar navbar-expand-lg navbar-dark navbar-medicare sticky-top">
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-Actpretor sticky-top">
       <div class="container-fluid">
         <a class="navbar-brand" href="index.php?r=menu/index">
-          <i class="bi bi-heart-pulse me-2"></i>MediCare Portal
+          <i class="bi bi-heart-pulse me-2"></i>Actpretor Portal
         </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
           <span class="navbar-toggler-icon"></span>
@@ -180,7 +180,7 @@ if (basename($baseUrl) === 'public') {
       <div class="container-fluid">
         <div class="row">
           <div class="col-md-6">
-            <small>&copy; <?php echo date('Y'); ?> MediCare Portal. All rights reserved.</small>
+            <small>&copy; <?php echo date('Y'); ?> Actpretor Portal. All rights reserved.</small>
           </div>
           <div class="col-md-6 text-md-end">
             <small>Healthcare Management System</small>
