@@ -88,16 +88,21 @@ class Patient {
         $pdo = Database::getInstance();
         // Get patients with medications ending soon or with specific notes
         $stmt = $pdo->query("
-            SELECT DISTINCT p.*, n.name as created_by_name 
-            FROM patients p 
+            SELECT 
+                p.*, 
+                n.name AS created_by_name,
+                MIN(m.end_date) AS next_end_date
+            FROM patients p
             LEFT JOIN nurses n ON p.created_by = n.id
             LEFT JOIN medications m ON p.id = m.patient_id
-            WHERE m.end_date IS NOT NULL 
+            WHERE m.end_date IS NOT NULL
             AND m.end_date <= DATE_ADD(CURDATE(), INTERVAL 7 DAY)
             AND m.status = 'Active'
-            ORDER BY m.end_date ASC
+            GROUP BY p.id
+            ORDER BY next_end_date ASC
             LIMIT 10
         ");
+
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 }
