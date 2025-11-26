@@ -7,10 +7,10 @@
                 <p class="text-muted mb-0">
                     Complete medication history for <strong><?php echo htmlspecialchars($patient['name']); ?></strong>
                 </p>
-            </div>
-            <?php if ($isNurse): ?>
-                <a href="index.php?r=medications/add&patient_id=<?php echo $patient['id']; ?>" class="btn btn-primary">
-                    <i class="bi bi-capsule me-1"></i>Add Medication
+            </div>  
+            <?php if ($isDoctor): ?>
+                <a href="index.php?r=medications/add&patient_id=<?php echo $patient['id']; ?>" class="btn btn-sm btn-primary">
+                    <i class="bi bi-plus me-1"></i>Add Medication
                 </a>
             <?php endif; ?>
         </div>

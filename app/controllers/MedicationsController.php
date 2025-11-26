@@ -14,8 +14,8 @@ class MedicationsController extends Controller {
         return true;
     }
 
-    private function requireNurse(): bool {
-        if (empty($_SESSION['nurse_id'])) {
+    private function requireDoctor(): bool {
+        if (empty($_SESSION['doctor_id'])) {
             header('Location: index.php?r=menu/index');
             return false;
         }
@@ -45,7 +45,7 @@ class MedicationsController extends Controller {
 
     public function add(): void {
         if (!$this->requireLogin()) return;
-        if (!$this->requireNurse()) return;
+        if (!$this->requireDoctor()) return;
         
         $patientId = isset($_GET['patient_id']) ? (int)$_GET['patient_id'] : 0;
         if ($patientId <= 0) {
@@ -72,7 +72,7 @@ class MedicationsController extends Controller {
                 'end_date' => !empty($_POST['end_date']) ? $_POST['end_date'] : null,
                 'status' => 'Active',
                 'instructions' => trim($_POST['instructions'] ?? ''),
-                'created_by' => $_SESSION['nurse_id']
+                'created_by' => $_SESSION['doctor_id']
             ];
             
             if (empty($data['name'])) {
@@ -84,7 +84,7 @@ class MedicationsController extends Controller {
             } else {
                 try {
                     $id = Medication::create($data);
-                    ActivityLog::create('nurse', $_SESSION['nurse_id'], 'Added Medication', "Added {$data['name']} {$data['dosage']} for {$patient['name']}", 'medication', $id);
+                    ActivityLog::create('doctor', $_SESSION['doctor_id'], 'Added Medication', "Added {$data['name']} {$data['dosage']} for {$patient['name']}", 'medication', $id);
                     header('Location: index.php?r=patients/info&id=' . $patientId);
                     exit;
                 } catch (Exception $e) {
@@ -96,14 +96,14 @@ class MedicationsController extends Controller {
         $this->render('medications/add', [
             'patient' => $patient,
             'error' => $error,
-            'isNurse' => true,
+            'isDoctor' => true,
             'hideLandingLinks' => true
         ]);
     }
 
     public function update(): void {
         if (!$this->requireLogin()) return;
-        if (!$this->requireNurse()) return;
+        if (!$this->requireDoctor()) return;
         
         $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
         if ($id <= 0) {
@@ -130,7 +130,7 @@ class MedicationsController extends Controller {
                 'end_date' => !empty($_POST['end_date']) ? $_POST['end_date'] : null,
                 'status' => $_POST['status'] ?? 'Active',
                 'instructions' => trim($_POST['instructions'] ?? ''),
-                'updated_by' => $_SESSION['nurse_id']
+                'updated_by' => $_SESSION['doctor_id']
             ];
             
             if (empty($data['name'])) {
@@ -142,7 +142,7 @@ class MedicationsController extends Controller {
             } else {
                 try {
                     Medication::update($id, $data);
-                    ActivityLog::create('nurse', $_SESSION['nurse_id'], 'Updated Medication', "Updated {$data['name']} for {$patient['name']}", 'medication', $id);
+                    ActivityLog::create('doctor', $_SESSION['doctor_id'], 'Updated Medication', "Updated {$data['name']} for {$patient['name']}", 'medication', $id);
                     header('Location: index.php?r=patients/info&id=' . $medication['patient_id']);
                     exit;
                 } catch (Exception $e) {
@@ -158,14 +158,14 @@ class MedicationsController extends Controller {
             'medication' => $medication,
             'patient' => $patient,
             'error' => $error,
-            'isNurse' => true,
+            'isDoctor' => true,
             'hideLandingLinks' => true
         ]);
     }
 
     public function stop(): void {
         if (!$this->requireLogin()) return;
-        if (!$this->requireNurse()) return;
+        if (!$this->requireDoctor()) return;
         
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             header('Location: index.php?r=menu/index');
@@ -183,11 +183,11 @@ class MedicationsController extends Controller {
             Medication::update($id, [
                 'status' => 'Stopped',
                 'end_date' => date('Y-m-d'),
-                'updated_by' => $_SESSION['nurse_id']
+                'updated_by' => $_SESSION['doctor_id']
             ]);
             
             $patient = Patient::findById($medication['patient_id']);
-            ActivityLog::create('nurse', $_SESSION['nurse_id'], 'Stopped Medication', "Stopped {$medication['name']} for {$patient['name']}", 'medication', $id);
+            ActivityLog::create('doctor', $_SESSION['doctor_id'], 'Stopped Medication', "Stopped {$medication['name']} for {$patient['name']}", 'medication', $id);
             
             header('Location: index.php?r=patients/info&id=' . $medication['patient_id']);
             exit;
@@ -224,7 +224,7 @@ class MedicationsController extends Controller {
 
     public function delete(): void {
         if (!$this->requireLogin()) return;
-        if (!$this->requireNurse()) return;
+        if (!$this->requireDoctor()) return;
         
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             header('Location: index.php?r=menu/index');
@@ -243,7 +243,7 @@ class MedicationsController extends Controller {
             $patient = Patient::findById($patientId);
             
             Medication::delete($id);
-            ActivityLog::create('nurse', $_SESSION['nurse_id'], 'Deleted Medication', "Deleted {$medication['name']} for {$patient['name']}", 'medication', $id);
+            ActivityLog::create('doctor', $_SESSION['doctor_id'], 'Deleted Medication', "Deleted {$medication['name']} for {$patient['name']}", 'medication', $id);
             
             header('Location: index.php?r=patients/info&id=' . $patientId);
             exit;

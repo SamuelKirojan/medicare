@@ -4,6 +4,8 @@ require_once APP_ROOT . '/app/core/Database.php';
 require_once APP_ROOT . '/app/models/Patient.php';
 require_once APP_ROOT . '/app/models/Medication.php';
 require_once APP_ROOT . '/app/models/ActivityLog.php';
+require_once APP_ROOT . '/app/models/Nurse.php';
+require_once APP_ROOT . '/app/models/Doctor.php';
 
 class PatientsController extends Controller {
     private function requireLogin(): bool {
@@ -33,9 +35,9 @@ class PatientsController extends Controller {
     public function index(): void {
         if (!$this->requireLogin()) return;
         
-        $search = $_GET['search'] ?? '';
+        $search = isset($_GET['search']) ? trim($_GET['search']) : '';
         
-        if ($search) {
+        if (!empty($search)) {
             $patients = Patient::search($search);
         } else {
             $patients = Patient::getAll();
@@ -68,7 +70,7 @@ class PatientsController extends Controller {
         $medications = Medication::getByPatientId($id);
         $activityLogs = ActivityLog::getByEntity('patient', $id);
         
-        // Log view action for doctors
+        // Log doctor views
         if ($this->isDoctor()) {
             ActivityLog::create('doctor', $_SESSION['doctor_id'], 'Viewed Patient', "Viewed patient record for {$patient['name']}", 'patient', $id);
         }
@@ -88,7 +90,6 @@ class PatientsController extends Controller {
         if (!$this->requireNurse()) return;
         
         $error = null;
-        $success = null;
         
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $data = [
@@ -107,8 +108,8 @@ class PatientsController extends Controller {
             
             if (empty($data['name'])) {
                 $error = 'Patient name is required.';
-            } elseif ($data['age'] <= 0 || $data['age'] > 150) {
-                $error = 'Please enter a valid age.';
+            } elseif ($data['age'] <= 0) {
+                $error = 'Valid age is required.';
             } else {
                 try {
                     $id = Patient::create($data);
@@ -123,7 +124,6 @@ class PatientsController extends Controller {
         
         $this->render('patients/create', [
             'error' => $error,
-            'success' => $success,
             'isNurse' => true,
             'hideLandingLinks' => true
         ]);
@@ -163,8 +163,8 @@ class PatientsController extends Controller {
             
             if (empty($data['name'])) {
                 $error = 'Patient name is required.';
-            } elseif ($data['age'] <= 0 || $data['age'] > 150) {
-                $error = 'Please enter a valid age.';
+            } elseif ($data['age'] <= 0) {
+                $error = 'Valid age is required.';
             } else {
                 try {
                     Patient::update($id, $data);
@@ -204,22 +204,57 @@ class PatientsController extends Controller {
         }
         
         $patient = Patient::findById($id);
-        if ($patient) {
-            Patient::delete($id);
-            ActivityLog::create('nurse', $_SESSION['nurse_id'], 'Deleted Patient', "Deleted patient record for {$patient['name']}", 'patient', $id);
+        if (!$patient) {
+            header('Location: index.php?r=patients/index');
+            return;
         }
         
-        header('Location: index.php?r=patients/index');
-        exit;
+        // Check if patient has any medications
+        $medications = Medication::getByPatientId($id);
+        
+        if (!empty($medications)) {
+            // Patient has medications - cannot delete
+            $_SESSION['delete_error'] = 'Cannot delete patient with medication history. Patient has ' . count($medications) . ' medication(s) on record.';
+            header('Location: index.php?r=patients/info&id=' . $id);
+            exit;
+        }
+        
+        // No medications - safe to delete
+        try {
+            Patient::delete($id);
+            ActivityLog::create('nurse', $_SESSION['nurse_id'], 'Deleted Patient', "Deleted patient record for {$patient['name']}", 'patient', $id);
+            $_SESSION['delete_success'] = "Patient {$patient['name']} has been deleted successfully.";
+            header('Location: index.php?r=patients/index');
+            exit;
+        } catch (Exception $e) {
+            $_SESSION['delete_error'] = 'Failed to delete patient: ' . $e->getMessage();
+            header('Location: index.php?r=patients/info&id=' . $id);
+            exit;
+        }
     }
 
     public function search(): void {
         if (!$this->requireLogin()) return;
         
-        $query = $_GET['q'] ?? '';
+        $query = isset($_GET['q']) ? trim($_GET['q']) : '';
+        
+        if (empty($query)) {
+            echo json_encode([]);
+            return;
+        }
+        
         $patients = Patient::search($query);
         
+        $results = array_map(function($patient) {
+            return [
+                'id' => $patient['id'],
+                'name' => $patient['name'],
+                'age' => $patient['age'],
+                'gender' => $patient['gender']
+            ];
+        }, $patients);
+        
         header('Content-Type: application/json');
-        echo json_encode(['patients' => $patients]);
+        echo json_encode($results);
     }
 }
