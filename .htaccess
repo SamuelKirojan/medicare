@@ -1,9 +1,18 @@
 # Security Configuration for Canteen Application
 # Place this in the root directory (c:\xampp\htdocs\Canteen\)
 
-# Redirect all requests to public directory
+# Enable Rewrite Engine
 RewriteEngine On
+
+# Block direct access to /app and /database_backup directories FIRST
+RewriteCond %{REQUEST_URI} ^/app(/.*)?$ [OR]
+RewriteCond %{REQUEST_URI} ^/database_backup(/.*)?$
+RewriteRule ^ - [F,L]
+
+# Redirect all other requests to public directory (if not already in /public/)
 RewriteCond %{REQUEST_URI} !^/public/
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^(.*)$ public/$1 [L]
 
 # Prevent directory listing
@@ -35,10 +44,6 @@ Options -Indexes
     </IfModule>
 </FilesMatch>
 
-# Prevent access to specific directories
-RedirectMatch 403 ^/app/.*$
-RedirectMatch 403 ^/database_backup/.*$
-
 # Security headers (if mod_headers is enabled)
 <IfModule mod_headers.c>
     # Prevent clickjacking
@@ -53,3 +58,8 @@ RedirectMatch 403 ^/database_backup/.*$
     # Referrer Policy
     Header set Referrer-Policy "strict-origin-when-cross-origin"
 </IfModule>
+
+# Custom Error Pages
+ErrorDocument 403 /public/index.php?r=error/error403
+ErrorDocument 404 /public/index.php?r=error/error404
+ErrorDocument 500 /public/index.php?r=error/error500
