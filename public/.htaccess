@@ -1,14 +1,19 @@
-# Enable Rewrite Engine
+# Enable URL rewriting
 <IfModule mod_rewrite.c>
-    RewriteEngine On
-    RewriteBase /public/
-    
-    # If the file or directory exists, serve it directly
-    RewriteCond %{REQUEST_FILENAME} !-f
-    RewriteCond %{REQUEST_FILENAME} !-d
-    
-    # Route everything through index.php
-    RewriteRule ^(.*)$ index.php [QSA,L]
+RewriteEngine On
+RewriteBase /
+
+# Block access to parent app directory (with or without trailing slash)
+RewriteRule ^app/?$ - [F,L]
+RewriteRule ^\.\./ - [F,L]
+
+# If the file or directory exists, serve it directly
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# Otherwise route to index.php in public
+RewriteRule ^ index.php [L]
 </IfModule>
 
 # Custom Error Pages
@@ -18,24 +23,3 @@ ErrorDocument 500 /public/index.php?r=error/error500
 
 # Disable directory browsing
 Options -Indexes
-
-# Protect sensitive files
-<FilesMatch "\.(env|log|sql|md|txt)$">
-    # Apache 2.4+
-    <IfModule mod_authz_core.c>
-        Require all denied
-    </IfModule>
-    # Apache 2.2
-    <IfModule !mod_authz_core.c>
-        Order deny,allow
-        Deny from all
-    </IfModule>
-</FilesMatch>
-
-# Security Headers
-<IfModule mod_headers.c>
-    Header set X-Content-Type-Options "nosniff"
-    Header set X-Frame-Options "SAMEORIGIN"
-    Header set X-XSS-Protection "1; mode=block"
-    Header set Referrer-Policy "strict-origin-when-cross-origin"
-</IfModule>
