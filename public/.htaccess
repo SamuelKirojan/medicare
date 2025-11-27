@@ -1,25 +1,61 @@
-# Enable URL rewriting
-<IfModule mod_rewrite.c>
+# Security Configuration for Canteen Application
+# Place this in the root directory (c:\xampp\htdocs\Canteen\)
+
+# Redirect all requests to public directory
 RewriteEngine On
-RewriteBase /
 
-# Block access to parent app directory (with or without trailing slash)
-RewriteRule ^app/?$ - [F,L]
-RewriteRule ^\.\./ - [F,L]
+# Block direct access to /app and /database_backup directories BEFORE redirect
+RewriteRule ^app(/.*)?$ - [F,L]
+RewriteRule ^database_backup(/.*)?$ - [F,L]
 
-# If the file or directory exists, serve it directly
-RewriteCond %{REQUEST_FILENAME} -f [OR]
-RewriteCond %{REQUEST_FILENAME} -d
-RewriteRule ^ - [L]
+RewriteCond %{REQUEST_URI} !^/public/
+RewriteRule ^(.*)$ public/$1 [L]
 
-# Otherwise route to index.php in public
-RewriteRule ^ index.php [L]
+# Prevent directory listing
+Options -Indexes
+
+# Deny access to sensitive files
+<FilesMatch "^\.">
+    # Apache 2.4+
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    # Apache 2.2
+    <IfModule !mod_authz_core.c>
+        Order deny,allow
+        Deny from all
+    </IfModule>
+</FilesMatch>
+
+# Protect sensitive file types
+<FilesMatch "\.(sql|md|log|ini|config)$">
+    # Apache 2.4+
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    # Apache 2.2
+    <IfModule !mod_authz_core.c>
+        Order deny,allow
+        Deny from all
+    </IfModule>
+</FilesMatch>
+
+# Security headers (if mod_headers is enabled)
+<IfModule mod_headers.c>
+    # Prevent clickjacking
+    Header set X-Frame-Options "SAMEORIGIN"
+    
+    # XSS Protection
+    Header set X-XSS-Protection "1; mode=block"
+    
+    # Prevent MIME type sniffing
+    Header set X-Content-Type-Options "nosniff"
+    
+    # Referrer Policy
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
 </IfModule>
 
 # Custom Error Pages
 ErrorDocument 403 /public/index.php?r=error/error403
 ErrorDocument 404 /public/index.php?r=error/error404
 ErrorDocument 500 /public/index.php?r=error/error500
-
-# Disable directory browsing
-Options -Indexes
