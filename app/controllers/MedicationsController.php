@@ -251,11 +251,4 @@ class MedicationsController extends Controller {
         
         header('Location: index.php?r=menu/index');
     }
-    private function requireDoctor(): bool {
-        if (empty($_SESSION['doctor_id'])) {
-            header('Location: index.php?r=error/error403');
-            return false;
-        }
-        return true;
-    }
 }
