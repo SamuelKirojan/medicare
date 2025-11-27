@@ -13,7 +13,7 @@
                 
                 <div class="alert alert-warning" role="alert">
                     <i class="bi bi-exclamation-circle me-2"></i>
-                    weh batas jalan weh
+                    This area is restricted. If you need access, please contact your administrator.
                 </div>
                 
                 <div class="d-flex justify-content-center gap-2 flex-wrap">
