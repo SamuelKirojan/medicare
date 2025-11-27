@@ -101,7 +101,7 @@
                     <div class="logo-icon">
                         <i class="bi bi-heart-pulse"></i>
                     </div>
-                    <h1>chicken jockey</h1>
+                    <h1>Actpretor Portal</h1>
                     <p>A comprehensive healthcare management system for medical staff. <br>Manage patients, track medications, and streamline your workflow.</p>
                     
                     <div class="login-buttons">
