@@ -16,7 +16,7 @@ if (basename($baseUrl) === 'public') {
 <head>
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
-  <title>Actpretor Portal</title>
+  <title>jemba</title>
   <meta content="Medical staff portal for patient and medication management" name="description">
   <meta content="healthcare, medical, patients, medications" name="keywords">
   <link href="<?php echo $baseUrl; ?>assets/img/favicon.png" rel="icon">
