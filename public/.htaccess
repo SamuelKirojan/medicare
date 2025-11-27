@@ -15,3 +15,11 @@ RewriteRule ^ - [L]
 # Otherwise route to index.php in public
 RewriteRule ^ index.php [L]
 </IfModule>
+
+# Custom Error Pages
+ErrorDocument 403 /public/index.php?r=error/error403
+ErrorDocument 404 /public/index.php?r=error/error404
+ErrorDocument 500 /public/index.php?r=error/error500
+
+# Disable directory browsing
+Options -Indexes

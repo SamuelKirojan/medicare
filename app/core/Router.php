@@ -1,29 +1,59 @@
 <?php
 class Router {
+    private $controller = 'HomeController';
+    private $method = 'index';
+    
+    public function __construct() {
+        $route = $_GET['r'] ?? '';
+        $this->parseRoute($route);
+    }
+    
+    private function parseRoute(string $route): void {
+        if (empty($route)) {
+            return;
+        }
+        
+        $parts = explode('/', $route);
+        
+        if (!empty($parts[0])) {
+            $controllerName = ucfirst($parts[0]) . 'Controller';
+            $controllerPath = APP_ROOT . '/app/controllers/' . $controllerName . '.php';
+            
+            if (file_exists($controllerPath)) {
+                $this->controller = $controllerName;
+                
+                if (isset($parts[1]) && !empty($parts[1])) {
+                    $this->method = $parts[1];
+                }
+            } else {
+                // Controller not found - redirect to 404
+                $this->controller = 'ErrorController';
+                $this->method = 'error404';
+            }
+        }
+    }
+    
     public function dispatch(): void {
-        $route = isset($_GET['r']) ? trim($_GET['r'], '/') : 'home/index';
-        [$controllerName, $action] = array_pad(explode('/', $route, 2), 2, null);
-        $controllerName = $controllerName ? ucfirst(strtolower($controllerName)) . 'Controller' : 'HomeController';
-        $action = $action ?: 'index';
-
-        $controllerFile = APP_ROOT . '/app/controllers/' . $controllerName . '.php';
-        if (!file_exists($controllerFile)) {
-            http_response_code(404);
-            echo 'Controller not found';
+        require_once APP_ROOT . '/app/controllers/' . $this->controller . '.php';
+        
+        $controller = new $this->controller();
+        
+        // Check if method exists
+        if (!method_exists($controller, $this->method)) {
+            // Method not found - redirect to 404
+            require_once APP_ROOT . '/app/controllers/ErrorController.php';
+            $errorController = new ErrorController();
+            $errorController->error404();
             return;
         }
-        require_once $controllerFile;
-        if (!class_exists($controllerName)) {
-            http_response_code(500);
-            echo 'Controller class missing';
-            return;
+        
+        try {
+            call_user_func([$controller, $this->method]);
+        } catch (Exception $e) {
+            // Internal error - redirect to 500
+            require_once APP_ROOT . '/app/controllers/ErrorController.php';
+            $errorController = new ErrorController();
+            $errorController->error500();
         }
-        $controller = new $controllerName();
-        if (!method_exists($controller, $action)) {
-            http_response_code(404);
-            echo 'Action not found';
-            return;
-        }
-        $controller->$action();
     }
 }

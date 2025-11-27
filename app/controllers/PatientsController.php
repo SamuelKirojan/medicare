@@ -257,4 +257,11 @@ class PatientsController extends Controller {
         header('Content-Type: application/json');
         echo json_encode($results);
     }
+    private function requireNurse(): bool {
+        if (empty($_SESSION['nurse_id'])) {
+            header('Location: index.php?r=error/error403');
+            return false;
+        }
+        return true;
+    }
 }
